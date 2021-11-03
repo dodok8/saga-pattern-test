@@ -1,3 +1,5 @@
+import { getHttpCat } from './httpCat';
+
 const ALERT_SUCCESS = 'error/ALERT_SUCCESS' as const;
 const ALERT_ERROR = 'error/ALERT_ERROR' as const;
 const RESET_ERROR = 'error/RESET_ERROR' as const;
@@ -24,11 +26,11 @@ type ErrorAction =
   | ReturnType<typeof resetError>;
 
 type ErrorState = {
-  'httpCat/GET_HTTP_CAT': Error | false;
+  [getHttpCat.ACTION]: Error | false;
 };
 
 const initialState: ErrorState = {
-  'httpCat/GET_HTTP_CAT': false,
+  [getHttpCat.ACTION]: false,
 };
 
 export function error(

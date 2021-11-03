@@ -8,7 +8,7 @@ function App() {
   const dispatch = useAppDispatch();
   const { image, error } = useAppSelector((state) => ({
     image: state.httpCat.image,
-    error: state.error['httpCat/GET_HTTP_CAT'],
+    error: state.error[getHttpCat.ACTION],
   }));
   const [statusCode, setStatusCode] = useState<number>(200);
 
@@ -41,7 +41,7 @@ function App() {
         <div
           className="App-link"
           onClick={() => {
-            dispatch(getHttpCat(statusCode));
+            dispatch(getHttpCat.dispatch(statusCode));
           }}
         >
           Get Cat

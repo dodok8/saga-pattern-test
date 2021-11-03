@@ -2,44 +2,40 @@ import { call, put, takeEvery } from 'redux-saga/effects';
 import { AxiosResponse } from 'axios';
 import * as api from '../lib/api';
 import { alertError, alertSuccess } from './error';
+import { Action } from '../action';
 
-const GET_HTTP_CAT = 'httpCat/GET_HTTP_CAT' as const;
-const GET_HTTP_CAT_SUCCESS = 'httpCat/GET_HTTP_CAT_SUCCESS' as const;
-const GET_HTTP_CAT_FAILURE = 'httpCat/GET_HTTP_CAT_FAILURE' as const;
+export const getHttpCat = new Action<
+  'httpCat/GET_HTTP_CAT',
+  number,
+  { statusCode: number; image: string }
+>('httpCat/GET_HTTP_CAT');
 
-export const getHttpCat = (payload: number) => ({
-  type: GET_HTTP_CAT,
-  payload,
-});
-
-export function* getHttpCatSaga(action: ReturnType<typeof getHttpCat>) {
+export function* getHttpCatSaga(
+  action: ReturnType<typeof getHttpCat.dispatch>
+) {
   try {
     const response: AxiosResponse<string> = yield call(
       api.getHttpCat,
       action.payload
     );
 
-    yield put({
-      type: GET_HTTP_CAT_SUCCESS,
-      payload: {
+    yield put(
+      getHttpCat.success({
         statusCode: action.payload,
         image: URL.createObjectURL(response.data),
-      },
-    });
-    yield put(alertSuccess(GET_HTTP_CAT));
+        //blob 데이터는 FileReader를 통해서 하거나 createObjectURL
+      })
+    );
+    yield put(alertSuccess(getHttpCat.ACTION));
   } catch (error) {
-    yield put({ type: GET_HTTP_CAT_FAILURE, payload: error });
-    yield put(alertError(GET_HTTP_CAT, error));
+    yield put(getHttpCat.fail());
+    yield put(alertError(getHttpCat.ACTION, error));
   }
 }
 
-type GetCatAction =
-  | { type: typeof GET_HTTP_CAT; payload: number }
-  | {
-      type: typeof GET_HTTP_CAT_SUCCESS;
-      payload: { statusCode: number; image: string };
-    }
-  | { type: typeof GET_HTTP_CAT_FAILURE; error: unknown };
+type GetCatAction = ReturnType<
+  typeof getHttpCat['dispatch' | 'fail' | 'success']
+>;
 
 type GetCatState = {
   statusCode: number | null;
@@ -52,7 +48,7 @@ const initialState: GetCatState = {
 };
 
 export const httpCatSaga = function* () {
-  yield takeEvery(GET_HTTP_CAT, getHttpCatSaga);
+  yield takeEvery(getHttpCat.ACTION, getHttpCatSaga);
 };
 
 export const httpCat = function (
@@ -60,13 +56,13 @@ export const httpCat = function (
   action: GetCatAction
 ): GetCatState {
   switch (action.type) {
-    case GET_HTTP_CAT_SUCCESS:
+    case getHttpCat.SUCCESS:
       return {
         ...state,
         statusCode: action.payload.statusCode,
         image: action.payload.image,
       };
-    case GET_HTTP_CAT_FAILURE:
+    case getHttpCat.FAILURE:
       return initialState;
     default:
       return state;
