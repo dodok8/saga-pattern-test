@@ -1,11 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-import { useAppDispatch, useAppSelector } from './hooks';
-import { getHttpCat } from './modules/httpCat';
+import { useAppSelector } from './hooks';
+import { get200Cat, getHttpCat } from './modules/httpCat';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 function App() {
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
   const { image, error } = useAppSelector((state) => ({
     image: state.httpCat.image,
     error: state.error['httpCat/GET_HTTP_CAT'],

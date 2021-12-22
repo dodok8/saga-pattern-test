@@ -1,45 +1,21 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
-import { AxiosResponse } from 'axios';
+import { Action, ActionType } from '../action';
 import * as api from '../lib/api';
-import { alertError, alertSuccess } from './error';
 
-const GET_HTTP_CAT = 'httpCat/GET_HTTP_CAT' as const;
-const GET_HTTP_CAT_SUCCESS = 'httpCat/GET_HTTP_CAT_SUCCESS' as const;
-const GET_HTTP_CAT_FAILURE = 'httpCat/GET_HTTP_CAT_FAILURE' as const;
-
-export const getHttpCat = (payload: number) => ({
-  type: GET_HTTP_CAT,
-  payload,
+const GetHttpCat = new Action<
+  'httpCat/GET_HTTP_CAT',
+  GetCatState,
+  { statusCode: number; image: string }
+>('httpCat/GET_HTTP_CAT', api.getHttpCat, (response, ...args) => {
+  return { statusCode: args[0], image: URL.createObjectURL(response.data) };
 });
 
-export function* getHttpCatSaga(action: ReturnType<typeof getHttpCat>) {
-  try {
-    const response: AxiosResponse<string> = yield call(
-      api.getHttpCat,
-      action.payload
-    );
+export const getHttpCat = GetHttpCat.dispatch;
 
-    yield put({
-      type: GET_HTTP_CAT_SUCCESS,
-      payload: {
-        statusCode: action.payload,
-        image: URL.createObjectURL(response.data),
-      },
-    });
-    yield put(alertSuccess(GET_HTTP_CAT));
-  } catch (error) {
-    yield put({ type: GET_HTTP_CAT_FAILURE, payload: error });
-    yield put(alertError(GET_HTTP_CAT, error));
-  }
-}
+export const get200Cat = () => {
+  return GetHttpCat.dispatch(200);
+};
 
-type GetCatAction =
-  | { type: typeof GET_HTTP_CAT; payload: number }
-  | {
-      type: typeof GET_HTTP_CAT_SUCCESS;
-      payload: { statusCode: number; image: string };
-    }
-  | { type: typeof GET_HTTP_CAT_FAILURE; error: unknown };
+type GetCatAction = ActionType<typeof GetHttpCat>;
 
 type GetCatState = {
   statusCode: number | null;
@@ -51,22 +27,18 @@ const initialState: GetCatState = {
   image: null,
 };
 
-export const httpCatSaga = function* () {
-  yield takeEvery(GET_HTTP_CAT, getHttpCatSaga);
-};
-
 export const httpCat = function (
   state: GetCatState = initialState,
   action: GetCatAction
 ): GetCatState {
   switch (action.type) {
-    case GET_HTTP_CAT_SUCCESS:
+    case GetHttpCat.SUCCESS:
       return {
         ...state,
         statusCode: action.payload.statusCode,
         image: action.payload.image,
       };
-    case GET_HTTP_CAT_FAILURE:
+    case GetHttpCat.FAILURE:
       return initialState;
     default:
       return state;
