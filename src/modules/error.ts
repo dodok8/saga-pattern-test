@@ -2,18 +2,21 @@ const ALERT_SUCCESS = 'error/ALERT_SUCCESS' as const;
 const ALERT_ERROR = 'error/ALERT_ERROR' as const;
 const RESET_ERROR = 'error/RESET_ERROR' as const;
 
-export const alertError = (requestType: string, payload: unknown) => ({
+export const alertError = (
+  requestType: keyof ErrorState,
+  payload: unknown
+) => ({
   type: ALERT_ERROR,
   requestType: requestType,
   payload,
 });
 
-export const alertSuccess = (requestType: string) => ({
+export const alertSuccess = (requestType: keyof ErrorState) => ({
   type: ALERT_SUCCESS,
   requestType: requestType,
 });
 
-export const resetError = (requestType: string) => ({
+export const resetError = (requestType: keyof ErrorState) => ({
   type: RESET_ERROR,
   requestType: requestType,
 });
