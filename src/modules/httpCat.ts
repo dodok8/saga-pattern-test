@@ -4,6 +4,8 @@ import * as api from '../lib/api';
 import { alertError, alertSuccess } from './error';
 import { Action } from '../action';
 
+export type ApiType<T extends (...args: any) => any> = Awaited<ReturnType<T>>;
+
 export const getHttpCat = new Action<
   'httpCat/GET_HTTP_CAT',
   number,
@@ -14,16 +16,14 @@ export function* getHttpCatSaga(
   action: ReturnType<typeof getHttpCat.dispatch>
 ) {
   try {
-    const response: AxiosResponse<string> = yield call(
+    const response: ApiType<typeof api.getHttpCat> = yield call(
       api.getHttpCat,
       action.payload
     );
-
     yield put(
       getHttpCat.success({
         statusCode: action.payload,
         image: URL.createObjectURL(response.data),
-        //blob 데이터는 FileReader를 통해서 하거나 createObjectURL
       })
     );
     yield put(alertSuccess(getHttpCat.ACTION));
