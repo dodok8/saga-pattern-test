@@ -1,13 +1,22 @@
 import { Action, ActionType } from '../action';
 import * as api from '../lib/api';
 
+type ApiType<T extends (...args: any) => any> = Awaited<ReturnType<T>>;
+
 const GetHttpCat = new Action<
   'httpCat/GET_HTTP_CAT',
   GetCatState,
   { statusCode: number; image: string }
->('httpCat/GET_HTTP_CAT', api.getHttpCat, (response, ...args) => {
-  return { statusCode: args[0], image: URL.createObjectURL(response.data) };
-});
+>(
+  'httpCat/GET_HTTP_CAT',
+  api.getHttpCat,
+  (
+    response: ApiType<typeof api.getHttpCat>,
+    ...args: Parameters<typeof api.getHttpCat>
+  ) => {
+    return { statusCode: args[0], image: URL.createObjectURL(response.data) };
+  }
+);
 
 export const getHttpCat = GetHttpCat.dispatch;
 
