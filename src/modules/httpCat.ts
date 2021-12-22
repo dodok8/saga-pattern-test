@@ -3,7 +3,7 @@ import * as api from '../lib/api';
 
 type ApiType<T extends (...args: any) => any> = Awaited<ReturnType<T>>;
 
-const GetHttpCat = new Action<
+export const GetHttpCat = new Action<
   'httpCat/GET_HTTP_CAT',
   GetCatState,
   { statusCode: number; image: string }
